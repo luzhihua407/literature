@@ -1,0 +1,86 @@
+server:
+  port: 7001
+  servlet:
+    context-path: /
+
+spring:
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3306/literature?characterEncoding=utf8&characterSetResults=utf8&autoReconnect=true&failOverReadOnly=false&useSSL=false&serverTimezone=UTC
+      username: root
+      password: root
+      driverClassName: com.mysql.cj.jdbc.Driver
+      maxActive: 20
+      initialSize: 1
+      maxWait: 60000
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      minIdle: 1
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 1 from dual
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          jwk-set-uri: http://test.ktu56.com/auth/realms/demo/protocol/openid-connect/certs
+#
+#      client:
+#        registration:
+#          uaa-creds:
+#            provider: keycloak
+#            client-id: uaa
+#            client-secret: 44080d9f-aa31-4987-86a3-1f16e49f6a02
+#            authorization-grant-type: client_credentials
+#          uaa-password:
+#            provider: keycloak
+#            client-id: uaa
+#            username: zhangsan
+#            password: 123456
+#            client-secret: 44080d9f-aa31-4987-86a3-1f16e49f6a02
+#            authorization-grant-type: password
+#        provider:
+#          keycloak:
+#            authorization-uri: http://test.ktu56.com/auth/realms/demo/protocol/openid-connect/auth
+#            token-uri: http://test.ktu56.com/auth/realms/demo/protocol/openid-connect/token
+
+#logging:
+#  level: DEBUG
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    default-enum-type-handler: com.baomidou.mybatisplus.extension.handlers.EnumTypeHandler
+#  type-enums-package: com.starfire.familytree.enums
+#  global-config:
+#    db-config:
+#      field-strategy: ignored
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.jasig.cas: DEBUG
+#    org.springframework.boot.autoconfigure: DEBUG
+
+messages:
+  base-uri: http://localhost:8092/messages
+security:
+  cas:
+    server:
+      base-url: https://localhost:8443/cas
+      #base-url: https://localhost:8443/cas
+    service:
+#      base-url: http://localhost:7001/uaa
+      resolution-mode: dynamic
