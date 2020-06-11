@@ -51,14 +51,15 @@ public class IndexController {
     private ElasticsearchOperations elasticsearchOperations;
 
     @RequestMapping("/query")
-    public ModelAndView query(@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "0") int pageNumber) throws IOException {
+    public ModelAndView query(@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "1") int pageNumber) throws IOException {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.preTags("<b>");//设置前缀
         highlightBuilder.postTags("</b>");//设置后缀
         highlightBuilder.field("body");//设置高亮字段
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         queryBuilder.withFields("id","title","author","body");
-        Pageable unpaged = PageRequest.of(pageNumber,15);
+        //page start 0
+        Pageable unpaged = PageRequest.of(pageNumber-1,15);
         NativeSearchQueryBuilder query = queryBuilder.withPageable(unpaged);
         if(StringUtils.isNotEmpty(author)){
             query.withQuery(QueryBuilders.matchQuery("author", author));
@@ -110,8 +111,7 @@ public class IndexController {
             }
         });
         ModelAndView view=new ModelAndView("index");
-        view.addObject("page",page);
-        view.addObject("author",author);
+        view.addObject("page",page);view.addObject("author",author);
         view.addObject("keyword",keyword);
         return view;
     }

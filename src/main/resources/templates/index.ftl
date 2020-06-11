@@ -6,9 +6,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 <body>
-<form>
-    <div class="form-row align-items-center">
-        <form action="/query" method="post" id="queryForm">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="#"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">首页</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/query">唐诗宋词<span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<ul class="navbar nav justify-content-end navbar-light bg-light">
+    <li class="nav-item">
+    <form action="/query" method="post" id="queryForm">
+        <div class="form-row align-items-center">
+            <input type="hidden" name="pageNumber" id="pageNumber" value="1">
             <div class="col-auto">
                 <label class="sr-only" for="inlineFormInput">作者</label>
                 <input type="text" class="form-control mb-2" name="author" placeholder="请输入作者名" value="${author!""}">
@@ -22,9 +41,11 @@
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary mb-2" id="search">查询</button>
             </div>
-        </form>
-    </div>
-</form>
+        </div>
+    </form>
+    </li>
+</ul>
+<div class="container">
 <table class="table">
     <thead>
     <tr>
@@ -57,18 +78,20 @@
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
         <#assign span=5>
-        <#assign begin=page.getNumber()/span*span/>
-        <#assign end=(page.getNumber()/span+1)*span/>
+        <!--because page start in 0 -->
+        <#assign pageNumber=page.getNumber()+1>
+        <#assign begin=pageNumber/span*span/>
+        <#assign end=(pageNumber/span+1)*span/>
         <#if page.getTotalPages() lte end>
         <#assign end=page.getTotalPages()-1/>
         </#if>
-        <#assign next=page.getNumber()+1/>
-        <#if page.getNumber() gte 2>
-            <li class="page-item"><a class="page-link" href="query?author=${author}&keyword=${keyword}&pageNumber=0">首页</a></li>
-         <li class="page-item"><a class="page-link" href="query?author=${author}&keyword=${keyword}&pageNumber=${page.getNumber()-1}">上一页</a></li>
+        <#assign next=pageNumber+1/>
+        <#if pageNumber gte 2>
+            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(1)">首页</a></li>
+         <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${pageNumber-1})">上一页</a></li>
         </#if>
         <#list begin..end as i>
-            <#if page.getNumber()==i>
+            <#if pageNumber==i>
                 <li class="page-item active" aria-current="page">
                   <span class="page-link">
                     ${i}
@@ -76,12 +99,12 @@
                   </span>
                 </li>
             <#else>
-            <li class="page-item"><a class="page-link" href="query?author=${author}&keyword=${keyword}&pageNumber=${i}">${i}</a></li>
+            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${i})">${i}</a></li>
             </#if>
         </#list>
-        <#if page.getNumber()!=page.getTotalPages()-1 && page.getTotalPages() gt span >
-            <li class="page-item"><a class="page-link" href="query?author=${author}&keyword=${keyword}&pageNumber=${next}">下一页</a></li>
-            <li class="page-item"><a class="page-link" href="query?author=${author}&keyword=${keyword}&pageNumber=${page.getTotalPages()-1}">尾页</a></li>
+        <#if pageNumber!=page.getTotalPages()-1 && page.getTotalPages() gt span >
+            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${next})">下一页</a></li>
+            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${page.getTotalPages()-1})">尾页</a></li>
         </#if>
     </ul>
 </nav>
@@ -89,9 +112,15 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 <script>
+    function querySubmit(pageNumber){
+        $("#pageNumber").val(pageNumber);
+        $("#queryForm").submit();
+    }
 $(document).ready(function () {
+
 
 })
 </script>
+</div>
 </body>
 </html>
