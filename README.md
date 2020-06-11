@@ -3,11 +3,11 @@
 
 源码开发环境以及使用到一些技术：
 1、elasticsearch-7.5.1、elasticsearch-analysis-ik-7.5.1 <br>
-2、spring boot 2.2.5.RELEASE
-3、bootstrap 4.5.0
-4、mysql-8.0.17-winx64
-5、jquery 3.5.1
-6、mysql-8.0.17-winx64
-7、window10
-8、jdk1.8
-9、IntelliJ IDEA 2019.2.2 (Ultimate Edition)
+2、spring boot 2.2.5.RELEASE<br>
+3、bootstrap 4.5.0<br>
+4、mysql-8.0.17-winx64<br>
+5、jquery 3.5.1<br>
+6、mysql-8.0.17-winx64<br>
+7、window10<br>
+8、jdk1.8<br>
+9、IntelliJ IDEA 2019.2.2 (Ultimate Edition)<br>
