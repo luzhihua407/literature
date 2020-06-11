@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>唐诗宋词</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 <body>
@@ -18,16 +18,20 @@
                 <a class="nav-link" href="#">首页</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/query">唐诗宋词<span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="/article/query?category=1">唐诗宋词<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/article/query?category=2">道德经<span class="sr-only">(current)</span></a>
             </li>
         </ul>
     </div>
 </nav>
 <ul class="navbar nav justify-content-end navbar-light bg-light">
     <li class="nav-item">
-    <form action="/query" method="post" id="queryForm">
+    <form action="/article/query" method="post" id="queryForm">
         <div class="form-row align-items-center">
             <input type="hidden" name="pageNumber" id="pageNumber" value="1">
+            <input type="hidden" name="category" id="category" value="${category}">
             <div class="col-auto">
                 <label class="sr-only" for="inlineFormInput">作者</label>
                 <input type="text" class="form-control mb-2" name="author" placeholder="请输入作者名" value="${author!""}">

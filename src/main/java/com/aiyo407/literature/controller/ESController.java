@@ -1,29 +1,9 @@
 package com.aiyo407.literature.controller;
 
 
-import com.aiyo407.literature.poetry.entity.Poetry;
-import com.aiyo407.literature.poetry.service.IPoetryService;
-import org.apache.commons.beanutils.BeanMap;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.io.FileUtils;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.document.DocumentField;
-import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.get.GetResult;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import com.aiyo407.literature.article.entity.Article;
+import com.aiyo407.literature.article.service.IArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.*;
 import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,23 +26,27 @@ import java.util.regex.Pattern;
  */
 @RestController
 @RequestMapping()
-public class TestController {
+public class ESController {
 
     @Autowired
-    private IPoetryService poetryService;
+    private IArticleService articleService;
 
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
+    /**
+     * 创建ES索引
+     * @return
+     * @throws IOException
+     */
     @GetMapping("index")
     public String index() throws IOException {
-        List<Poetry> list = poetryService.list();
+        List<Article> list = articleService.list();
         for (int i = 0; i < list.size(); i++) {
-            Poetry poetry =  list.get(i);
-            Long id = poetry.getId();
+            Article article =  list.get(i);
             IndexQuery indexQuery = new IndexQueryBuilder()
-                    .withId(poetry.getId().toString())
-                    .withObject(poetry)
+                    .withId(article.getId().toString())
+                    .withObject(article)
                     .build();
             String documentId = elasticsearchOperations.index(indexQuery);
             System.err.println(documentId);
@@ -73,15 +55,20 @@ public class TestController {
     }
 
 
+    /**
+     * 删除ES索引
+     * @return
+     */
     @GetMapping("/deleteIndex")
     public String deleteIndex() {
         elasticsearchOperations.deleteIndex("*");
         return "ok";
     }
-    @GetMapping("/poetry/{id}")
-    public Poetry homePage(@PathVariable("id")  Long id) throws IOException {
-        Poetry person = elasticsearchOperations
-                .queryForObject(GetQuery.getById(id.toString()), Poetry.class);
+
+    @GetMapping("/article/{id}")
+    public Article getArticle(@PathVariable("id")  Long id) throws IOException {
+        Article person = elasticsearchOperations
+                .queryForObject(GetQuery.getById(id.toString()), Article.class);
         return person;
     }
 

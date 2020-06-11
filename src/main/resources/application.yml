@@ -27,16 +27,11 @@ spring:
     time-zone: GMT+8
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
-  session:
-    jdbc:
-      schema: schema-mysql.sql
-      store-type: jdbc
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*Mapper.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-
-
+  # 支持统配符 * 或者 ; 分割
+  typeEnumsPackage: com.aiyo407.literature.enums
 
