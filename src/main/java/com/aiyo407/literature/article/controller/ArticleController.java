@@ -6,11 +6,24 @@ import com.aiyo407.literature.article.service.IArticleService;
 import com.aiyo407.literature.enums.ArticleCategoryEnum;
 import com.aiyo407.literature.utils.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.get.GetResult;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
+import org.elasticsearch.search.aggregations.bucket.composite.ParsedComposite;
+import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.stats.StatsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCountAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +31,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.GetResultMapper;
+import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
+import org.springframework.data.elasticsearch.core.query.GetQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -64,58 +79,122 @@ public class ArticleController {
         String name = EnumUtils.getEnumName(ArticleCategoryEnum.class, category);
         query.withFilter(QueryBuilders.matchQuery("category",name) );
         if(StringUtils.isNotEmpty(author)){
-            query.withQuery(QueryBuilders.matchQuery("author", author));
+            query.withQuery(QueryBuilders.matchQuery("author.keyword", author));
         }
         if(StringUtils.isNotEmpty(keyword)){
 
             query.withQuery(QueryBuilders.matchQuery("body", keyword));
         }
         query.withHighlightBuilder(highlightBuilder);
-        Page<Article> page = elasticsearchOperations.queryForPage(queryBuilder.build(), Article.class, new SearchResultMapper(){
-
-
-            @Override
-            public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
-                long totalHits = searchResponse.getHits().getTotalHits();
-                float maxScore = searchResponse.getHits().getMaxScore();
-                SearchHits hits = searchResponse.getHits();
-                List<Article> results = new ArrayList<>();
-                Iterator<SearchHit> iterator = hits.iterator();
-                while (iterator.hasNext()) {
-                    SearchHit next = iterator.next();
-                    Article article = new Article();
-                    Map<String, Object> sourceAsMap = next.getSourceAsMap();
-                    Map<String, HighlightField> highlightFields = next.getHighlightFields();
-                    article.setAuthor((String) sourceAsMap.get("author"));
-                    article.setTitle((String) sourceAsMap.get("title"));
-                    article.setBody((String) sourceAsMap.get("body"));
-                    if (sourceAsMap.containsKey("id")) {
-
-                        article.setId(Long.valueOf((String) sourceAsMap.get("id")));
-                    }
-                    HighlightField body = highlightFields.get("body");
-                    if (body != null) {
-
-                        Text[] fragments = body.getFragments();
-                        Text fragment = fragments[0];
-                        String name = fragment.string();
-                        article.setBody(name);
-                        System.err.println(name);
-                    }
-                    results.add(article);
-                }
-                return new AggregatedPageImpl(results, pageable, totalHits, searchResponse.getAggregations(), searchResponse.getScrollId(), maxScore);
-            }
-
-            @Override
-            public <T> T mapSearchHit(SearchHit searchHit, Class<T> aClass) {
-                return null;
-            }
-        });
+        Page<Article> page = getArticles(queryBuilder.build());
         ModelAndView view=new ModelAndView("article");
         view.addObject("page",page);view.addObject("author",author);
         view.addObject("keyword",keyword);
         view.addObject("category",category);
+        return view;
+    }
+
+    private Page<Article> getArticles(SearchQuery searchQuery) {
+        return elasticsearchOperations.queryForPage(searchQuery, Article.class, new SearchResultMapper(){
+
+
+                @Override
+                public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+                    long totalHits = searchResponse.getHits().getTotalHits();
+                    float maxScore = searchResponse.getHits().getMaxScore();
+                    SearchHits hits = searchResponse.getHits();
+                    List<Article> results = new ArrayList<>();
+                    Iterator<SearchHit> iterator = hits.iterator();
+                    while (iterator.hasNext()) {
+                        SearchHit next = iterator.next();
+                        Article article = new Article();
+                        Map<String, Object> sourceAsMap = next.getSourceAsMap();
+                        Map<String, HighlightField> highlightFields = next.getHighlightFields();
+                        article.setAuthor((String) sourceAsMap.get("author"));
+                        article.setTitle((String) sourceAsMap.get("title"));
+                        article.setBody((String) sourceAsMap.get("body"));
+                        if (sourceAsMap.containsKey("id")) {
+
+                            article.setId(Long.valueOf((String) sourceAsMap.get("id")));
+                        }
+                        HighlightField body = highlightFields.get("body");
+                        if (body != null) {
+
+                            Text[] fragments = body.getFragments();
+                            Text fragment = fragments[0];
+                            String name = fragment.string();
+                            article.setBody(name);
+                            System.err.println(name);
+                        }
+                        results.add(article);
+                    }
+                    return new AggregatedPageImpl(results, pageable, totalHits, searchResponse.getAggregations(), searchResponse.getScrollId(), maxScore);
+                }
+
+                @Override
+                public <T> T mapSearchHit(SearchHit searchHit, Class<T> aClass) {
+                    return null;
+                }
+            });
+    }
+
+    @RequestMapping("/authorAgg")
+    public ModelAndView authorAgg() {
+        Page<Article> page = getAuthorAgg();
+        ModelAndView view=new ModelAndView("author");
+        view.addObject("page",page);
+        return view;
+    }
+
+    private Page<Article> getAuthorAgg() {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        List<CompositeValuesSourceBuilder<?>> sources=new ArrayList<>();
+        sources.add(new TermsValuesSourceBuilder("author").field("author.keyword"));
+        CompositeAggregationBuilder author = AggregationBuilders.composite("authorAgg", sources).size(200);
+        queryBuilder.addAggregation(author);
+        return elasticsearchOperations.queryForPage(queryBuilder.build(), Article.class, new SearchResultMapper() {
+
+
+                    @Override
+                    public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
+                        long totalHits = searchResponse.getHits().getTotalHits();
+                        float maxScore = searchResponse.getHits().getMaxScore();
+                        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+                        Aggregations aggregations = searchResponse.getAggregations();
+                        ParsedComposite parsedComposite = aggregations.get("authorAgg");
+                        List<ParsedComposite.ParsedBucket> buckets = parsedComposite.getBuckets();
+                        for (int i = 0; i < buckets.size(); i++) {
+                            ParsedComposite.ParsedBucket bucket = buckets.get(i);
+                            Map<String, Object> map = bucket.getKey();
+                            long docCount = bucket.getDocCount();
+                            map.put("count", docCount);
+                            list.add(map);
+                        }
+                        return new AggregatedPageImpl(list, pageable, totalHits, searchResponse.getAggregations(), searchResponse.getScrollId(), maxScore);
+
+                    }
+
+                    @Override
+                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> aClass) {
+                        return null;
+                    }
+        });
+    }
+
+    @RequestMapping("/authorDetail")
+    public ModelAndView authorDetail(String author) {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        queryBuilder.withFields("id","title","author","body","dynasty");
+        //page start 0
+        Pageable unpaged = PageRequest.of(0,15);
+        queryBuilder.withPageable(unpaged);
+        MatchQueryBuilder matchQuery = QueryBuilders.matchQuery("author.keyword", author);
+        queryBuilder.withQuery(matchQuery);
+        Page<Article> page = getArticles(queryBuilder.build());
+        ModelAndView view=new ModelAndView("authorDetail");
+        Page<Article> authorAgg = getAuthorAgg();
+        view.addObject("page",page);
+        view.addObject("authorAgg",authorAgg);
         return view;
     }
 

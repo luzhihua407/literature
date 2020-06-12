@@ -6,26 +6,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 <body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="#"></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">首页</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/article/query?category=1">唐诗宋词<span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/article/query?category=2">道德经<span class="sr-only">(current)</span></a>
-            </li>
-        </ul>
-    </div>
-</nav>
+<#include "nav.ftl"/>
 <ul class="navbar nav justify-content-end navbar-light bg-light">
     <li class="nav-item">
     <form action="/article/query" method="post" id="queryForm">
@@ -77,8 +58,18 @@
     </tr>
     </#list>
     </#if>
+    <#if page.getTotalPages()==0>
+        <tr>
+            <td colspan="3">
+
+                <p class="text-center">搜索不到任何内容</p>
+            </td>
+        </tr>
+    </#if>
     </tbody>
 </table>
+<#if page.getTotalPages() gt 0>
+
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
         <#assign span=5>
@@ -106,12 +97,14 @@
             <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${i})">${i}</a></li>
             </#if>
         </#list>
-        <#if pageNumber!=page.getTotalPages()-1 && page.getTotalPages() gt span >
+        <#if pageNumber!=page.getTotalPages() && page.getTotalPages() gt span >
             <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${next})">下一页</a></li>
-            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${page.getTotalPages()-1})">尾页</a></li>
+            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${page.getTotalPages()})">尾页</a></li>
         </#if>
     </ul>
 </nav>
+
+</#if>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>

@@ -1,14 +1,17 @@
-package com.aiyo407.literature.poetry.entity;
+package com.aiyo407.literature.article.entity;
 
-import com.aiyo407.literature.entity.AbstractEntity;
+import com.aiyo407.literature.enums.ArticleCategoryEnum;
+import com.aiyo407.literature.enums.DynastyEnum;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.io.Serializable;
 
@@ -22,14 +25,15 @@ import java.io.Serializable;
  */
 @Data
 @Accessors(chain = true)
-@Document(indexName = "poetry")
-public class Poetry implements Serializable {
+@Document(indexName = "article")
+public class Article implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
+    @TableId(type = IdType.AUTO)
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long id = null;
+    private Long id;
     /**
      * 标题
      */
@@ -45,13 +49,16 @@ public class Poetry implements Serializable {
     /**
      * 作者
      */
-    @Field
+    @Field(name = "author")
     private String author;
 
     /**
      * 朝代
      */
-    private String dynasty;
+    private DynastyEnum dynasty;
 
-
+    /**
+     * 分类
+     */
+    private ArticleCategoryEnum category;
 }
