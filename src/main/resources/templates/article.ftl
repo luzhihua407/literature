@@ -75,10 +75,19 @@
         <#assign span=5>
         <!--because page start in 0 -->
         <#assign pageNumber=page.getNumber()+1>
+
+        <#if pageNumber%span!=0>
+            <#assign begin=pageNumber-2>
+        </#if>
         <#assign begin=pageNumber/span*span/>
+
+        <#if pageNumber%span!=0>
+            <#assign end=pageNumber+2>
+        <#else>
         <#assign end=(pageNumber/span+1)*span/>
+        </#if>
         <#if page.getTotalPages() lte end>
-        <#assign end=page.getTotalPages()-1/>
+            <#assign end=page.getTotalPages()/>
         </#if>
         <#assign next=pageNumber+1/>
         <#if pageNumber gte 2>
