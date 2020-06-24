@@ -32,6 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -53,27 +55,43 @@ public class IndexController {
         List<Map> list=new ArrayList<>();
         StringBuffer body=new StringBuffer();
             Map<String,String> map=new HashMap<>();
-        List<String> lines = FileUtils.readLines(new File("C:\\Users\\86137\\Desktop\\laozi.txt"), "UTF-8");
+            boolean flag=true;
+        List<String> lines = FileUtils.readLines(new File("C:\\Users\\86137\\Desktop\\cai.txt"), "UTF-8");
         for (int i = 0; i < lines.size(); i++) {
             String s =  lines.get(i);
+            s=StringUtils.strip(s);
             if(StringUtils.isNotEmpty(s)){
-                if(s.startsWith("第")){
-                    if(body.length()>0){
-                        map.put("body",body.toString());
-                        list.add(map);
-                        map=new HashMap<>();
-                        body=new StringBuffer();
-                    }
-                    map.put("title",s);
+                Pattern pattern = Pattern.compile("^[0-9].*");
+                Matcher isNum = pattern.matcher(s);
+                if(isNum.find()){
+                    flag=true;
+                    map.put("title",s.split("\\.")[1]);
 //                    System.err.println(s);
-                }else{
-                    body.append(s);
+                } else {
+
+                    if(s.startsWith("【") || s.startsWith("[")){
+                        flag=false;
+                        if(body.length()>0){
+                            map.put("body",body.toString());
+                            list.add(map);
+//                            System.err.println(body.toString());
+                        }
+                        map = new HashMap<>();
+                        body = new StringBuffer();
+
+                    }else{
+                        if(flag){
+                            body.append(s);
+                        }
+
+                    }
                 }
-                System.err.println(i+"==="+s);
-                if(i==600){
-                    map.put("body",body.toString());
-                    list.add(map);
-                }
+
+//                System.err.println(i+"==="+s);
+//                if(i==1759){
+//                    map.put("body",body.toString());
+//                    list.add(map);
+//                }
             }
         }
         for (int i = 0; i < list.size(); i++) {
@@ -85,10 +103,10 @@ public class IndexController {
             Article article=new Article();
             article.setBody(body1.toString());
             article.setTitle(title.toString());
-            article.setAuthor("老子");
-            article.setCategory(ArticleCategoryEnum.道德经);
-            article.setDynasty(DynastyEnum.春秋);
-            articleService.save(article);
+            article.setAuthor("洪应明");
+            article.setCategory(ArticleCategoryEnum.菜根谭);
+            article.setDynasty(DynastyEnum.明);
+//            articleService.save(article);
         }
 
         return "ok";

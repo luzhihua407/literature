@@ -17,6 +17,9 @@
             <li class="nav-item <#if category==2>active</#if>">
                 <a class="nav-link" href="/article/query?category=2">道德经</a>
             </li>
+            <li class="nav-item <#if category==3>active</#if>">
+                <a class="nav-link" href="/article/query?category=3">菜根谭</a>
+            </li>
         </ul>
     </div>
 </nav>

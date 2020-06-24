@@ -14,7 +14,7 @@ import lombok.Getter;
 @Getter
 public enum DynastyEnum {
 
-    唐朝(1),宋朝(2),元朝(3),春秋(4);
+    唐朝(1),宋朝(2),元朝(3),春秋(4),明(5);
 
 
     @EnumValue
