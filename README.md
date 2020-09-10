@@ -19,10 +19,10 @@
 
 > ElasticSearch和IK的下载与安装
 
-1、到https://www.elastic.co/cn/downloads/elasticsearch 下载ElasticSearch7.5.1的Window版本。
-2、到https://github.com/medcl/elasticsearch-analysis-ik/releases 下载IK，版本号跟上面的ElasticSearch对应。
-3、将ElasticSearch压缩包解压到本地任意路径。
-4、找到ElasticSearch安装路径，打开根目录下plugins文件夹，并在里面创建IK文件夹，将下载的IK压缩包的文件，解压到该文件夹里面。
+1. 到https://www.elastic.co/cn/downloads/elasticsearch 下载ElasticSearch7.5.1的Window版本。
+2. 到https://github.com/medcl/elasticsearch-analysis-ik/releases 下载IK，版本号跟上面的ElasticSearch对应。
+3. 将ElasticSearch压缩包解压到本地任意路径。
+4. 找到ElasticSearch安装路径，打开根目录下plugins文件夹，并在里面创建IK文件夹，将下载的IK压缩包的文件，解压到该文件夹里面。
 
 > ElasticSearch的启动
 
