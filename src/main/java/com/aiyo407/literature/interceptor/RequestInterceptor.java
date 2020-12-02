@@ -1,5 +1,6 @@
 package com.aiyo407.literature.interceptor;
 
+import com.aiyo407.literature.enums.ArticleCategoryEnum;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -12,6 +13,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author luzh
@@ -27,9 +32,21 @@ public class RequestInterceptor extends ModelAndViewMethodReturnValueHandler {
         ModelAndView mav = (ModelAndView)o;
         String category = nativeWebRequest.getParameter("category");
         if(category==null){
-            category="-1";
+            category= ArticleCategoryEnum.诗词.getValue()+"";
         }
-          mav.addObject("category",Integer.valueOf(category));
+        List<Map<String,Object>> navList=new ArrayList<Map<String,Object>>();
+        ArticleCategoryEnum[] categoryEnums = ArticleCategoryEnum.values();
+        for (int i = 0; i < categoryEnums.length; i++) {
+            Map<String,Object> map=new HashMap<>();
+            ArticleCategoryEnum categoryEnum = categoryEnums[i];
+            String name = categoryEnum.name();
+            int value = categoryEnum.getValue();
+            map.put("name",name);
+            map.put("value",value);
+            navList.add(map);
+        }
+        mav.addObject("navList",navList);
+        mav.addObject("category",Integer.valueOf(category));
         super.handleReturnValue(o,methodParameter,modelAndViewContainer,nativeWebRequest);
 
     }

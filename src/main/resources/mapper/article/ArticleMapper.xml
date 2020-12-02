@@ -9,6 +9,7 @@
         <result column="body" property="body" />
         <result column="author" property="author" />
         <result column="dynasty" property="dynasty" />
+        <result column="first_letter" property="firstLetter" />
         <result column="category" property="category" />
     </resultMap>
 

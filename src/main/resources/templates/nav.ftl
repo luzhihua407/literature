@@ -8,18 +8,17 @@
             <li class="nav-item">
                 <a class="nav-link" href="#">首页</a>
             </li>
-            <li class="nav-item <#if category==3>active</#if>">
-                <a class="nav-link" href="/article/authorAgg?category=3">作者索引</a>
-            </li>
-            <li class="nav-item <#if category==1>active</#if>">
-                <a class="nav-link" href="/article/query?category=1">唐诗宋词</a>
-            </li>
-            <li class="nav-item <#if category==2>active</#if>">
-                <a class="nav-link" href="/article/query?category=2">道德经</a>
-            </li>
-            <li class="nav-item <#if category==3>active</#if>">
-                <a class="nav-link" href="/article/query?category=3">菜根谭</a>
-            </li>
+            <#if navList??>
+                <#list navList as item>
+                    <li class="nav-item <#if category==item.value>active</#if>">
+                        <#if item.value==1>
+                                <a class="nav-link" href="/article/authorDetail?category=${item.value}">${item.name}</a>
+                            <#else>
+                                <a class="nav-link" href="/article/query?category=${item.value}">${item.name}</a>
+                        </#if>
+                    </li>
+                </#list>
+            </#if>
         </ul>
     </div>
 </nav>

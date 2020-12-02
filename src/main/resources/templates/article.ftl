@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>唐诗宋词</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
 </head>
 <body>
 <#include "nav.ftl"/>
@@ -114,9 +114,9 @@
 </nav>
 
 </#if>
-    <script src="/static/js/jquery-3.5.1.slim.min.js"></script>
-    <script src="/static/js/popper.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script><script>
+    <script src="/js/jquery-3.5.1.slim.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script><script>
     function querySubmit(pageNumber){
         $("#pageNumber").val(pageNumber);
         $("#queryForm").submit();

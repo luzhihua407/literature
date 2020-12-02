@@ -1,4 +1,4 @@
-package com.aiyo407.literature.utils;
+package com.aiyo407.literature.util;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 

@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author luzh
@@ -51,6 +51,12 @@ public class Article implements Serializable {
      */
     @Field(name = "author")
     private String author;
+
+    /**
+     * 姓名首字母
+     */
+    @Field(name = "firstLetter")
+    private String firstLetter;
 
     /**
      * 朝代

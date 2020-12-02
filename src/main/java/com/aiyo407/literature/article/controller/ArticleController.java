@@ -4,26 +4,21 @@ package com.aiyo407.literature.article.controller;
 import com.aiyo407.literature.article.entity.Article;
 import com.aiyo407.literature.article.service.IArticleService;
 import com.aiyo407.literature.enums.ArticleCategoryEnum;
-import com.aiyo407.literature.utils.EnumUtils;
+import com.aiyo407.literature.util.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
 import org.elasticsearch.search.aggregations.bucket.composite.ParsedComposite;
 import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.stats.StatsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCountAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +26,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.GetResultMapper;
-import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
-import org.springframework.data.elasticsearch.core.query.GetQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Controller;
@@ -138,19 +129,11 @@ public class ArticleController {
             });
     }
 
-    @RequestMapping("/authorAgg")
-    public ModelAndView authorAgg() {
-        Page<Article> page = getAuthorAgg();
-        ModelAndView view=new ModelAndView("author");
-        view.addObject("page",page);
-        return view;
-    }
-
-    private Page<Article> getAuthorAgg() {
+    private Page<Article> firstLetterGroup() {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         List<CompositeValuesSourceBuilder<?>> sources=new ArrayList<>();
-        sources.add(new TermsValuesSourceBuilder("author").field("author.keyword"));
-        CompositeAggregationBuilder author = AggregationBuilders.composite("authorAgg", sources).size(200);
+        sources.add(new TermsValuesSourceBuilder("firstLetter").field("firstLetter.keyword"));
+        CompositeAggregationBuilder author = AggregationBuilders.composite("firstLetterAgg", sources).size(200);
         queryBuilder.addAggregation(author);
         return elasticsearchOperations.queryForPage(queryBuilder.build(), Article.class, new SearchResultMapper() {
 
@@ -161,11 +144,29 @@ public class ArticleController {
                         float maxScore = searchResponse.getHits().getMaxScore();
                         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
                         Aggregations aggregations = searchResponse.getAggregations();
-                        ParsedComposite parsedComposite = aggregations.get("authorAgg");
+                        ParsedComposite parsedComposite = aggregations.get("firstLetterAgg");
                         List<ParsedComposite.ParsedBucket> buckets = parsedComposite.getBuckets();
                         for (int i = 0; i < buckets.size(); i++) {
                             ParsedComposite.ParsedBucket bucket = buckets.get(i);
                             Map<String, Object> map = bucket.getKey();
+                            Object firstLetter = map.get("firstLetter");
+                            NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+                            TermsQueryBuilder termsQueryBuilder = new TermsQueryBuilder("firstLetter.keyword", firstLetter);
+                            Pageable unpaged = PageRequest.of(0,100);
+                            queryBuilder.withPageable(unpaged);
+                            queryBuilder.withFilter(termsQueryBuilder);
+                            queryBuilder.withFields("author");
+                            queryBuilder.withCollapseField("author.keyword");
+                            List<Article> articles = elasticsearchOperations.queryForList(queryBuilder.build(), Article.class);
+                            List<String> authors=new ArrayList<>();
+                            if(!articles.isEmpty()){
+                                for (int j = 0; j < articles.size(); j++) {
+                                    Article article =  articles.get(j);
+                                    String author1 = article.getAuthor();
+                                    authors.add(author1);
+                                }
+                            }
+                            map.put("authors",authors);
                             long docCount = bucket.getDocCount();
                             map.put("count", docCount);
                             list.add(map);
@@ -182,18 +183,19 @@ public class ArticleController {
     }
 
     @RequestMapping("/authorDetail")
-    public ModelAndView authorDetail(String author) {
+    public ModelAndView authorDetail(@RequestParam(defaultValue = "*",required = false) String author) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         queryBuilder.withFields("id","title","author","body","dynasty");
         //page start 0
         Pageable unpaged = PageRequest.of(0,15);
         queryBuilder.withPageable(unpaged);
-        MatchQueryBuilder matchQuery = QueryBuilders.matchQuery("author.keyword", author);
+        WildcardQueryBuilder matchQuery = QueryBuilders.wildcardQuery("author.keyword", author);
         queryBuilder.withQuery(matchQuery);
         Page<Article> page = getArticles(queryBuilder.build());
         ModelAndView view=new ModelAndView("authorDetail");
-        Page<Article> authorAgg = getAuthorAgg();
+        Page<Article> authorAgg = firstLetterGroup();
         view.addObject("page",page);
+        view.addObject("currentAuthor",author);
         view.addObject("authorAgg",authorAgg);
         return view;
     }
