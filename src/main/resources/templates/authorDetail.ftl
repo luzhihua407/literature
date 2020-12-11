@@ -7,6 +7,7 @@
 </head>
 <body>
 <#include "nav.ftl"/>
+<#import "pagination.ftl" as pagination />
 <div class="container">
     <div class="row">
 
@@ -20,6 +21,16 @@
             </div>
         </div>
     </#list>
+        <nav aria-label="Page navigation example" style="float:right;">
+            <ul class="pagination justify-content-center">
+                <li class="page-item"><@pagination.first /></li>
+                <li class="page-item"><@pagination.previous /></li>
+                <li class="page-item"><@pagination.numbers /></li>
+                <li class="page-item"><@pagination.next /></li>
+                <li class="page-item"><@pagination.last /></li>
+            </ul>
+        </nav>
+        <@pagination.counter />
     </div>
     <div class="card col-xl-4 mt-4">
         <li class="row">
@@ -44,24 +55,6 @@
                 </div>
                 </li>
 
-<#--             <div class="col-xl-4">-->
-<#--                 <div class="row">-->
-<#--                     <div class="col-xl-12 bg-secondary text-white">-->
-<#--                         ${item.firstLetter!""}-->
-<#--                     </div>-->
-<#--                 </div>-->
-<#--                 <#list item.authors as author>-->
-<#--                     <span class="col-xl-12">-->
-<#--                     <a class="text-reset" href="/article/authorDetail?author=${author}">-->
-<#--                         <#if currentAuthor==author>-->
-<#--                             <button type="button" class="btn btn-secondary btn-sm">${author}</button>-->
-<#--                         <#else>-->
-<#--                             ${author}-->
-<#--                         </#if>-->
-<#--                     </a>-->
-<#--                    </span>-->
-<#--                 </#list>-->
-<#--             </div>-->
             </#list>
             </ul>
         </div>

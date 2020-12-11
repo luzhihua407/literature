@@ -5,6 +5,7 @@ import com.aiyo407.literature.article.entity.Article;
 import com.aiyo407.literature.article.service.IArticleService;
 import com.aiyo407.literature.enums.ArticleCategoryEnum;
 import com.aiyo407.literature.util.EnumUtils;
+import com.aiyo407.literature.util.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
@@ -22,6 +23,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -56,8 +58,11 @@ public class ArticleController {
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
+    @Autowired
+    private MessageSource messageSource;
+
     @RequestMapping("/query")
-    public ModelAndView query(@RequestParam(defaultValue = "1")int category,@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "1") int pageNumber) throws IOException {
+    public ModelAndView query(@RequestParam(defaultValue = "0")int category,@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "0") int pageNumber) throws IOException {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.preTags("<b>");//设置前缀
         highlightBuilder.postTags("</b>");//设置后缀
@@ -65,7 +70,7 @@ public class ArticleController {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         queryBuilder.withFields("id","title","author","body");
         //page start 0
-        Pageable unpaged = PageRequest.of(pageNumber-1,15);
+        Pageable unpaged = PageRequest.of(pageNumber,15);
         NativeSearchQueryBuilder query = queryBuilder.withPageable(unpaged);
         String name = EnumUtils.getEnumName(ArticleCategoryEnum.class, category);
         query.withFilter(QueryBuilders.matchQuery("category",name) );
@@ -77,18 +82,18 @@ public class ArticleController {
             query.withQuery(QueryBuilders.matchQuery("body", keyword));
         }
         query.withHighlightBuilder(highlightBuilder);
-        Page<Article> page = getArticles(queryBuilder.build());
+        AggregatedPage<Article> page = getArticles(queryBuilder.build());
+        PageInfo<Object, Object> pageInfo = PageInfo.builder().from(page);
         ModelAndView view=new ModelAndView("article");
+        view.addObject("paginationData",pageInfo);
         view.addObject("page",page);view.addObject("author",author);
         view.addObject("keyword",keyword);
         view.addObject("category",category);
         return view;
     }
 
-    private Page<Article> getArticles(SearchQuery searchQuery) {
-        return elasticsearchOperations.queryForPage(searchQuery, Article.class, new SearchResultMapper(){
-
-
+    private AggregatedPage<Article> getArticles(SearchQuery searchQuery) {
+        return (AggregatedPage<Article>) elasticsearchOperations.queryForPage(searchQuery, Article.class, new SearchResultMapper(){
                 @Override
                 public <T> AggregatedPage<T> mapResults(SearchResponse searchResponse, Class<T> aClass, Pageable pageable) {
                     long totalHits = searchResponse.getHits().getTotalHits();
@@ -183,18 +188,20 @@ public class ArticleController {
     }
 
     @RequestMapping("/authorDetail")
-    public ModelAndView authorDetail(@RequestParam(defaultValue = "*",required = false) String author) {
+    public ModelAndView authorDetail(@RequestParam(defaultValue = "0") int pageNumber,@RequestParam(defaultValue = "*",required = false) String author) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         queryBuilder.withFields("id","title","author","body","dynasty");
         //page start 0
-        Pageable unpaged = PageRequest.of(0,15);
+        Pageable unpaged = PageRequest.of(pageNumber,15);
         queryBuilder.withPageable(unpaged);
         WildcardQueryBuilder matchQuery = QueryBuilders.wildcardQuery("author.keyword", author);
         queryBuilder.withQuery(matchQuery);
-        Page<Article> page = getArticles(queryBuilder.build());
+        AggregatedPage<Article> page = getArticles(queryBuilder.build());
+        PageInfo<Object, Object> pageInfo = PageInfo.builder().from(page);
         ModelAndView view=new ModelAndView("authorDetail");
         Page<Article> authorAgg = firstLetterGroup();
         view.addObject("page",page);
+        view.addObject("paginationData",pageInfo);
         view.addObject("currentAuthor",author);
         view.addObject("authorAgg",authorAgg);
         return view;

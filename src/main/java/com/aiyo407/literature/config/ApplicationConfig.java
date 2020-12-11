@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -31,4 +32,9 @@ public class ApplicationConfig {
         handlers.add(0, new RequestInterceptor());
         handlerAdapter.setReturnValueHandlers(handlers);
     }
+
+//    @Bean
+//    public FreeMarkerConfigurer freeMarkerConfigurer(){
+//        return  new FreeMarkerConfigurer();
+//    }
 }

@@ -28,7 +28,7 @@
  *
  * pageNumber -> The current page number
  * pageSize -> The number of items in each page
- * pagesAvailable -> The total number of pages
+ * pageCount -> The total number of pages
  * sortDirection -> The sorting direction (ascending or descending)
  * sortField -> The field currently sorted by
  *
@@ -50,6 +50,7 @@
 <#--
  * Assign the current data to the object called "paginationData" if set.
 -->
+<#import "/spring.ftl" as spring/>
 <#if paginationData??>
     <#assign data = paginationData />
 </#if>
@@ -80,7 +81,7 @@
  * Outputs the last page link
 -->
 <#macro last>
-    <#if (data.pageNumber >= data.pagesAvailable - 1)>
+    <#if (data.pageNumber >= data.pageCount - 1)>
         <#local classAttr = "class=\"disabled\"" />
     <#else>
         <#local classAttr = "" />
@@ -88,14 +89,14 @@
     <#local text>
         <@spring.messageText "pagination.last", "Last »" />
     </#local>
-    <@page data.pagesAvailable - 1, text, classAttr/>
+    <@page data.pageCount - 1, text, classAttr/>
 </#macro>
 
 <#--
  * Outputs the next page link
 -->
 <#macro next>
-    <#if (data.pageNumber >= data.pagesAvailable - 1)>
+    <#if (data.pageNumber >= data.pageCount - 1)>
         <#local pageNumber = data.pageNumber />
         <#local classAttr = "class=\"disabled\"" />
     <#else>
@@ -131,7 +132,7 @@
  * @param maxPages (Optional) The maximum number of page links to show
  * @param separator (Optional) The separator between page links
 -->
-<#macro numbers maxPages = 9 separator = " | ">
+<#macro numbers maxPages = 9 separator = "">
     <#local pagesBefore = (maxPages / 2)?floor />
     <#local pagesAfter = (maxPages / 2)?floor />
     <#if maxPages % 2 == 0>
@@ -143,9 +144,9 @@
         <#local pageNumMax = pageNumMax + (0 - pageNumMin) />
         <#local pageNumMin = 0 />
     </#if>
-    <#if (pageNumMax >= data.pagesAvailable)>
-        <#local pageNumMin = pageNumMin - (pageNumMax - data.pagesAvailable) />
-        <#local pageNumMax = data.pagesAvailable - 1 />
+    <#if (pageNumMax >= data.pageCount)>
+        <#local pageNumMin = pageNumMin - (pageNumMax - data.pageCount) />
+        <#local pageNumMax = data.pageCount - 1 />
         <#if (pageNumMin < 0)>
             <#local pageNumMin = 0 />
         </#if>
@@ -177,19 +178,25 @@
     <#if (attributes != "" && attributes?starts_with(" ") == false)>
         <#local attributes = " " + attributes />
     </#if>
-    <a href="?field=${data.sortField?url}&amp;page=${pageNumber}&amp;size=${data.pageSize}&amp;direction=${data.sortDirection?url}"${attributes}>${text?html}</a>
+        <li class="page-item">
+    <#if attributes=="class=\"disabled\"">
+        <a class="page-link disabled"  href="#">${text?html}</a>
+    <#else>
+        <a class="page-link"  href="?pageNumber=${pageNumber}&amp;pageSize=${data.pageSize}">${text?html}</a>
+    </#if>
+        </li>
 </#macro>
 
 <#--
  * Outputs the current page number and the total pages
 -->
 <#macro counter>
-    <#if data.pagesAvailable == 0>
-        <#local pagesAvailable = 1 />
+    <#if data.pageCount == 0>
+        <#local pageCount = 1 />
     <#else>
-        <#local pagesAvailable = data.pagesAvailable />
+        <#local pageCount = data.pageCount />
     </#if>
-    <@spring.messageArgsText "pagination.counter", [data.pageNumber + 1, pagesAvailable], "{0} of {1}" />
+    <@spring.messageArgsText "pagination.counter", [data.pageNumber + 1, pageCount], "{0} of {1}" />
 </#macro>
 
 <#--

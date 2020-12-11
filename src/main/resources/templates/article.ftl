@@ -7,6 +7,7 @@
 </head>
 <body>
 <#include "nav.ftl"/>
+<#import "pagination.ftl" as pagination />
 <ul class="navbar nav justify-content-end navbar-light bg-light">
     <li class="nav-item">
     <form action="/article/query" method="post" id="queryForm">
@@ -68,52 +69,16 @@
     </#if>
     </tbody>
 </table>
-<#if page.getTotalPages() gt 0>
-
-<nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        <#assign span=5>
-        <!--because page start in 0 -->
-        <#assign pageNumber=page.getNumber()+1>
-
-        <#if pageNumber%span!=0>
-            <#assign begin=pageNumber-2>
-        </#if>
-        <#assign begin=pageNumber/span*span/>
-
-        <#if pageNumber%span!=0>
-            <#assign end=pageNumber+2>
-        <#else>
-        <#assign end=(pageNumber/span+1)*span/>
-        </#if>
-        <#if page.getTotalPages() lte end>
-            <#assign end=page.getTotalPages()/>
-        </#if>
-        <#assign next=pageNumber+1/>
-        <#if pageNumber gte 2>
-            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(1)">首页</a></li>
-         <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${pageNumber-1})">上一页</a></li>
-        </#if>
-        <#list begin..end as i>
-            <#if pageNumber==i>
-                <li class="page-item active" aria-current="page">
-                  <span class="page-link">
-                    ${i}
-                    <span class="sr-only">(current)</span>
-                  </span>
-                </li>
-            <#else>
-            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${i})">${i}</a></li>
-            </#if>
-        </#list>
-        <#if pageNumber!=page.getTotalPages() && page.getTotalPages() gt span >
-            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${next})">下一页</a></li>
-            <li class="page-item"><a class="page-link" href="#?" onclick="querySubmit(${page.getTotalPages()})">尾页</a></li>
-        </#if>
-    </ul>
-</nav>
-
-</#if>
+    <nav aria-label="Page navigation example" style="float:right;">
+        <ul class="pagination justify-content-center">
+            <li class="page-item"><@pagination.first /></li>
+            <li class="page-item"><@pagination.previous /></li>
+            <li class="page-item"><@pagination.numbers /></li>
+            <li class="page-item"><@pagination.next /></li>
+            <li class="page-item"><@pagination.last /></li>
+        </ul>
+    </nav>
+    <@pagination.counter />
     <script src="/js/jquery-3.5.1.slim.min.js"></script>
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script><script>

@@ -1,6 +1,7 @@
 package com.aiyo407.literature.util;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 
 import java.util.List;
 
@@ -54,6 +55,9 @@ public class PageInfo<P, T> implements java.io.Serializable {
 
     }
 
+    public static PageInfo builder(){
+        return new PageInfo();
+    }
     /**
      * 构造Page实例
      *
@@ -219,6 +223,21 @@ public class PageInfo<P, T> implements java.io.Serializable {
         this.setData(records);
         this.setTotal(total);
         return null;
+
+    }
+
+    public PageInfo<?, T> from(AggregatedPage<T> page) {
+        long current = page.getNumber();
+        long pages = page.getTotalPages();
+        List<T> records = page.getContent();
+        long size = page.getSize();
+        long total = page.getTotalElements();
+        this.setPageCount((int) pages);
+        this.setPageNumber((int) current);
+        this.setPageSize((int) size);
+        this.setData(records);
+        this.setTotal(total);
+        return this;
 
     }
 
