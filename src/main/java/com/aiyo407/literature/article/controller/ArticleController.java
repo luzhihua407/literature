@@ -62,7 +62,7 @@ public class ArticleController {
     private MessageSource messageSource;
 
     @RequestMapping("/query")
-    public ModelAndView query(@RequestParam(defaultValue = "0")int category,@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "0") int pageNumber) throws IOException {
+    public ModelAndView query(@RequestParam(defaultValue = "1")int category,@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "0") int pageNumber) throws IOException {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.preTags("<b>");//设置前缀
         highlightBuilder.postTags("</b>");//设置后缀
@@ -139,6 +139,8 @@ public class ArticleController {
         List<CompositeValuesSourceBuilder<?>> sources=new ArrayList<>();
         sources.add(new TermsValuesSourceBuilder("firstLetter").field("firstLetter.keyword"));
         CompositeAggregationBuilder author = AggregationBuilders.composite("firstLetterAgg", sources).size(200);
+        QueryBuilder queryBuilder2=QueryBuilders.matchPhraseQuery("category", ArticleCategoryEnum.诗词.name());
+        queryBuilder.withQuery(queryBuilder2);
         queryBuilder.addAggregation(author);
         return elasticsearchOperations.queryForPage(queryBuilder.build(), Article.class, new SearchResultMapper() {
 
@@ -156,10 +158,12 @@ public class ArticleController {
                             Map<String, Object> map = bucket.getKey();
                             Object firstLetter = map.get("firstLetter");
                             NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
-                            TermsQueryBuilder termsQueryBuilder = new TermsQueryBuilder("firstLetter.keyword", firstLetter);
+                            QueryBuilder queryBuilder1=QueryBuilders.matchPhraseQuery("firstLetter", firstLetter);
+                            QueryBuilder queryBuilder2=QueryBuilders.matchPhraseQuery("category", ArticleCategoryEnum.诗词.name());
+                            QueryBuilder multiQueryBuilder=QueryBuilders.boolQuery().must(queryBuilder1).must(queryBuilder2);
                             Pageable unpaged = PageRequest.of(0,100);
                             queryBuilder.withPageable(unpaged);
-                            queryBuilder.withFilter(termsQueryBuilder);
+                            queryBuilder.withFilter(multiQueryBuilder);
                             queryBuilder.withFields("author");
                             queryBuilder.withCollapseField("author.keyword");
                             List<Article> articles = elasticsearchOperations.queryForList(queryBuilder.build(), Article.class);

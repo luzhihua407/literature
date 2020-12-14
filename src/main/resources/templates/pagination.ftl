@@ -178,21 +178,27 @@
     <#if (attributes != "" && attributes?starts_with(" ") == false)>
         <#local attributes = " " + attributes />
     </#if>
-        <li class="page-item">
-    <#if attributes=="class=\"disabled\"">
-        <a class="page-link disabled"  href="#">${text?html}</a>
+    <#if (attributes?index_of("disabled")>-1)>
+        <li class="page-item disabled">
+        <a class="page-link"  href="#" aria-disabled="true">${text?html}</a>
     <#else>
-        <a class="page-link"  href="?pageNumber=${pageNumber}&amp;pageSize=${data.pageSize}">${text?html}</a>
+        <#if (attributes?index_of("selected")>-1) >
+            <li class="page-item active" aria-current="page">
+            <a class="page-link" href="#">${text?html}</a>
+        <#else>
+        <li class="page-item">
+        <a class="page-link"  href="?pageNumber=${pageNumber}&amp;pageSize=${data.pageSize}&amp;${urlParams!""}">${text?html}</a>
+        </#if>
     </#if>
         </li>
 </#macro>
+<#macro counter>
+<#if data.pageCount == 0>
+<#local pageCount = 1 />
 
 <#--
  * Outputs the current page number and the total pages
 -->
-<#macro counter>
-    <#if data.pageCount == 0>
-        <#local pageCount = 1 />
     <#else>
         <#local pageCount = data.pageCount />
     </#if>

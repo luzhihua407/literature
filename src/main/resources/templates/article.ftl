@@ -71,11 +71,11 @@
 </table>
     <nav aria-label="Page navigation example" style="float:right;">
         <ul class="pagination justify-content-center">
-            <li class="page-item"><@pagination.first /></li>
-            <li class="page-item"><@pagination.previous /></li>
-            <li class="page-item"><@pagination.numbers /></li>
-            <li class="page-item"><@pagination.next /></li>
-            <li class="page-item"><@pagination.last /></li>
+            <@pagination.first />
+            <@pagination.previous />
+            <@pagination.numbers />
+            <@pagination.next />
+            <@pagination.last />
         </ul>
     </nav>
     <@pagination.counter />
@@ -84,6 +84,7 @@
     <script src="/js/bootstrap.min.js"></script><script>
     function querySubmit(pageNumber){
         $("#pageNumber").val(pageNumber);
+        $("#category").val(${category!1});
         $("#queryForm").submit();
     }
 $(document).ready(function () {

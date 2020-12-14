@@ -9,6 +9,11 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import org.slf4j.Logger;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author luzh
  * @version 1.0.0
@@ -53,5 +58,25 @@ public class StringUtils {
             letter =pinyin.substring(0,1);
         }
         return letter;
+    }
+
+
+    public final static String toURLParams(Map<String, String[]> model){
+
+        StringBuffer params=new StringBuffer();
+        Set<String> keySet = model.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        while (iterator.hasNext()) {
+            String key =  iterator.next();
+            String[] o = model.get(key);
+            String value = Arrays.toString(o).replace("[", "").replace("]", "");
+            if(value.equals("") || key.equals("pageNumber") || key.equals("pageSize") ){
+                continue;
+            }
+            params.append(key).append("=").append(value).append("&");
+        }
+        params.deleteCharAt(params.length()-1);
+        return params.toString();
+
     }
 }
