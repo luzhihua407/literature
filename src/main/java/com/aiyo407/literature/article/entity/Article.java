@@ -14,6 +14,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * <p>
@@ -67,4 +68,6 @@ public class Article implements Serializable {
      * 分类
      */
     private ArticleCategoryEnum category;
+
+    private Timestamp createTime;
 }

@@ -22,6 +22,8 @@ import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuil
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -74,6 +76,9 @@ public class ArticleController {
         NativeSearchQueryBuilder query = queryBuilder.withPageable(unpaged);
         String name = EnumUtils.getEnumName(ArticleCategoryEnum.class, category);
         query.withFilter(QueryBuilders.matchQuery("category",name) );
+        FieldSortBuilder sortBuilder = new FieldSortBuilder("id.keyword");
+        sortBuilder.order(SortOrder.ASC);
+        query.withSort(sortBuilder);
         if(StringUtils.isNotEmpty(author)){
             query.withQuery(QueryBuilders.matchQuery("author.keyword", author));
         }
