@@ -16,10 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -135,31 +132,56 @@ class KtuSpringBootCloudDemoApplicationTests {
     void word() throws IOException, TikaException {
 
         Tika tika = new Tika();
-        String s = tika.parseToString(new File("D:\\BaiduNetdiskDownload\\英语四级单词表\\英语四级单词表.doc"));
+        Reader reader = tika.parse(new FileInputStream(new File("C:\\Users\\luzh\\Downloads\\英语六级词汇6000正序第二部分 @大师兄英语.PDF")));
+        int i = 0;
         ArrayList<Object> list = new ArrayList<>();
-        String[] lines = s.split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-        System.err.println(line);
-            if(line.length()>0){
+        char[] b = new char[512];
+        while ((i = reader.read(b)) != -1) {
+            String str = new String(b);
+//            if(str.substring(0,3).matches("[a-zA-Z]+")){
 
-            list.add(line);
-            }
+
+            System.out.print(str);
+            list.add(str);
+//            }
         }
-        FileUtils.writeLines(new File("D:\\BaiduNetdiskDownload\\英语四级单词表\\4.txt"),list);
+//        String s = tika.parseToString(new File("C:\\Users\\luzh\\Downloads\\英语六级词汇6000正序第二部分 @大师兄英语.PDF"));
+//        String[] lines = s.split("\n");
+//        for (int i = 0; i < lines.length; i++) {
+//            String line = lines[i];
+//            if(line.startsWith("aversion")){
+//                System.err.println(11);
+//            }
+//        System.err.println(line);
+//            if(line.length()>0){
+//
+//            list.add(line);
+//            }
+//        }
+        FileUtils.writeLines(new File("D:\\BaiduNetdiskDownload\\英语四级单词表\\6.txt"),list);
+//        FileUtils.write(new File("D:\\BaiduNetdiskDownload\\英语四级单词表\\6.txt"),reader,"UTF-8");
     }
 
     @Test
     void writeWord() throws IOException, TikaException {
 
-        List<String> lines = FileUtils.readLines(new File("D:\\BaiduNetdiskDownload\\英语四级单词表\\4.txt"), "UTF-8");
+        List<String> lines = FileUtils.readLines(new File("D:\\BaiduNetdiskDownload\\英语四级单词表\\6.txt"), "UTF-8");
         for (int i = 0; i < lines.size(); i++) {
             String s =  lines.get(i);
+            if(s.length()==0){
+                continue;
+            }
+            if(s.length()>3 && s.substring(0,3).matches("[a-zA-Z]+")){
+                System.err.println(s);
+            }
             boolean flag = s.contains("/");
             if(flag==false){
                 continue;
             }
             String[] split = s.split("/");
+            if(split.length<3){
+                continue;
+            }
             String word=split[0];
             String pron=split[1];
             String cn=split[2];
