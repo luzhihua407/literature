@@ -27,14 +27,9 @@ import java.sql.Timestamp;
 @Data
 @Accessors(chain = true)
 @Document(indexName = "article")
-public class Article implements Serializable {
+public class Article extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @TableId(type = IdType.AUTO)
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long id;
     /**
      * 标题
      */

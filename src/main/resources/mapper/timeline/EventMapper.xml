@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiyo407.literature.timeline.mapper.EventMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.aiyo407.literature.timeline.entity.TimelineEvent">
+    <result column="id" property="id" />
+        <result column="start" property="start" />
+        <result column="end" property="end" />
+        <result column="text" property="text" />
+        <result column="progress" property="progress" />
+        <result column="fuzzy" property="fuzzy" />
+        <result column="fuzzy_start" property="fuzzyStart" />
+        <result column="fuzzy_end" property="fuzzyEnd" />
+        <result column="locked" property="locked" />
+        <result column="ends_today" property="endsToday" />
+        <result column="category" property="category" />
+        <result column="description" property="description" />
+        <result column="labels" property="labels" />
+        <result column="default_color" property="defaultColor" />
+    </resultMap>
+
+</mapper>
