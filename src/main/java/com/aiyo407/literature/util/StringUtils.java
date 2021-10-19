@@ -75,7 +75,10 @@ public class StringUtils {
             }
             params.append(key).append("=").append(value).append("&");
         }
-        params.deleteCharAt(params.length()-1);
+        if(params.length()>0){
+
+            params.deleteCharAt(params.length()-1);
+        }
         return params.toString();
 
     }

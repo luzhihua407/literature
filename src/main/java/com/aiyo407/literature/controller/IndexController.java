@@ -48,10 +48,15 @@ import java.util.regex.Pattern;
 public class IndexController {
 
 
+    @RequestMapping("/")
+    public void index(){
+        System.err.println(1111);
+    }
+
     @Autowired
     private IArticleService articleService;
     @GetMapping("test")
-    public String index() throws IOException {
+    public String test() throws IOException {
         List<Map> list=new ArrayList<>();
         StringBuffer body=new StringBuffer();
             Map<String,String> map=new HashMap<>();

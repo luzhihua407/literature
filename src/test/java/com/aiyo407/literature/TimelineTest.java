@@ -5,8 +5,12 @@ import com.aiyo407.literature.timeline.service.IEventService;
 import com.aiyo407.literature.timeline.xml.Event;
 import com.aiyo407.literature.timeline.xml.Events;
 import com.aiyo407.literature.timeline.xml.Timeline;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +70,10 @@ public class TimelineTest {
 		}
 		events.setEvent(eventList);
 		timeline.setEvents(events);
-		ObjectMapper xmlMapper = new XmlMapper();
+		XmlMapper xmlMapper = new XmlMapper();
+		xmlMapper.enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
 		String xml = xmlMapper.writeValueAsString(timeline);
+		FileUtils.write(new File("D://史记.timeline"),xml,"UTF-8");
 		System.err.println(xml);
 	}
 }

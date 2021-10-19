@@ -1,6 +1,7 @@
 package com.aiyo407.literature.timeline.xml;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.util.List;
 
@@ -13,7 +14,8 @@ import java.util.List;
  */
 public class Categories
 {
-	@JacksonXmlElementWrapper()
+	@JacksonXmlElementWrapper(useWrapping = false)
+	@JacksonXmlProperty(localName = "category")
 	private List<Category> category;
 
 	public List<Category> getCategory() {

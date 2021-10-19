@@ -1,6 +1,8 @@
 package com.aiyo407.literature.timeline.xml;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -25,11 +27,13 @@ public class Timeline
 
 	private String timetype="gregoriantime";
 
-//	@JacksonXmlElementWrapper()
-//	private List<Category> categories=new ArrayList<>();
+	@JacksonXmlProperty(localName = "categories")
+	private Categories categories;
 
+	@JacksonXmlProperty(localName = "events")
 	private Events events;
 
-//	private View view;
+	@JacksonXmlProperty(localName = "view")
+	private View view;
 
 }
