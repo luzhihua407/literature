@@ -26,15 +26,15 @@ import java.util.List;
 @Configuration
 public class ApplicationConfig {
 
-
-    @Autowired
-    private RequestMappingHandlerAdapter handlerAdapter;
-
-    @PostConstruct
-    public void init() {
-        List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>(handlerAdapter.getReturnValueHandlers());
-        handlers.add(0,new ResponseInterceptor());
-        handlerAdapter.setReturnValueHandlers(handlers);
-    }
+//
+//    @Autowired
+//    private RequestMappingHandlerAdapter handlerAdapter;
+//
+//    @PostConstruct
+//    public void init() {
+//        List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>(handlerAdapter.getReturnValueHandlers());
+//        handlers.add(0,new ResponseInterceptor());
+//        handlerAdapter.setReturnValueHandlers(handlers);
+//    }
 
 }
