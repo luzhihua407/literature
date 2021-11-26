@@ -4,15 +4,11 @@
 ##### 不管是周易、道德经，论语等国学，还是唐诗宋词等文学，都深深的吸引着我。
 ##### 如何在浩如烟海的文字中，寻找到心目中那句优美的词句或者圣人哲理？从而温故而知新，陶冶性情？
 ##### 有了此念头，于是着手开发了本应用。
-##### 本源码利用ElasticSearch搜索引擎技术结合Web UI 构成。
 
 > 源码开发环境以及使用到的一些技术：
 
  - elasticsearch-7.5.1、elasticsearch-analysis-ik-7.5.1 
  - spring boot 2.2.5.RELEASE
- - bootstrap 4.5.0
- - mysql-8.0.17-winx64
- - jquery 3.5.1
  - mysql-8.0.17-winx64
  - window10
  - jdk1.8

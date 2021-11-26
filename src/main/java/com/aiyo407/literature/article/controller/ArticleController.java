@@ -2,14 +2,16 @@ package com.aiyo407.literature.article.controller;
 
 
 import com.aiyo407.literature.article.entity.Article;
-import com.aiyo407.literature.article.service.IArticleService;
 import com.aiyo407.literature.enums.ArticleCategoryEnum;
 import com.aiyo407.literature.util.EnumUtils;
 import com.aiyo407.literature.util.PageInfo;
+import com.aiyo407.literature.vo.QueryArticleReqVo;
+import com.aiyo407.literature.vo.ResponseVo;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -18,14 +20,11 @@ import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregati
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
 import org.elasticsearch.search.aggregations.bucket.composite.ParsedComposite;
 import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
-import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,12 +34,12 @@ import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -50,52 +49,45 @@ import java.util.*;
  * @author luzh
  * @since 2020-02-21
  */
-@Controller
+@RestController
 @RequestMapping("article")
 public class ArticleController {
 
-    @Autowired
-    private IArticleService articleService;
 
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
-    @Autowired
-    private MessageSource messageSource;
 
-    @RequestMapping("/query")
-    public ModelAndView query(@RequestParam(defaultValue = "1")int category,@RequestParam(defaultValue = "")String author,@RequestParam(defaultValue = "")String keyword,@RequestParam(defaultValue = "0") int pageNumber) throws IOException {
-        HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.preTags("<b>");//设置前缀
-        highlightBuilder.postTags("</b>");//设置后缀
-        highlightBuilder.field("body");//设置高亮字段
-        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
-        queryBuilder.withFields("id","title","author","body");
-        //page start 0
-        Pageable unpaged = PageRequest.of(pageNumber,15);
-        NativeSearchQueryBuilder query = queryBuilder.withPageable(unpaged);
-        String name = EnumUtils.getEnumName(ArticleCategoryEnum.class, category);
-        query.withFilter(QueryBuilders.matchQuery("category",name) );
-        FieldSortBuilder sortBuilder = new FieldSortBuilder("id.keyword");
-        sortBuilder.order(SortOrder.ASC);
-        query.withSort(sortBuilder);
-        if(StringUtils.isNotEmpty(author)){
-            query.withQuery(QueryBuilders.matchQuery("author.keyword", author));
-        }
-        if(StringUtils.isNotEmpty(keyword)){
+        @PostMapping(value ="/list",produces="application/json")
+        public ResponseVo list(@RequestBody QueryArticleReqVo queryArticleReqVo) {
+            String author = queryArticleReqVo.getAuthor();
+            String keyword = queryArticleReqVo.getKeyword();
+            HighlightBuilder highlightBuilder = new HighlightBuilder();
+            highlightBuilder.preTags("<b>");//设置前缀
+            highlightBuilder.postTags("</b>");//设置后缀
+            highlightBuilder.field("body");//设置高亮字段
+            NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+            queryBuilder.withFields("id","title","author","body");
+            //page start 0
+            Pageable unpaged = PageRequest.of(queryArticleReqVo.getPageNumber(),15);
+            NativeSearchQueryBuilder query = queryBuilder.withPageable(unpaged);
+            String name = EnumUtils.getEnumName(ArticleCategoryEnum.class, queryArticleReqVo.getCategory());
+            query.withFilter(QueryBuilders.matchQuery("category",name) );
+            FieldSortBuilder sortBuilder = new FieldSortBuilder("id.keyword");
+            sortBuilder.order(SortOrder.ASC);
+            query.withSort(sortBuilder);
+            if(StringUtils.isNotEmpty(author)){
+                query.withQuery(QueryBuilders.matchQuery("author.keyword", author));
+            }
+            if(StringUtils.isNotEmpty(keyword)){
 
-            query.withQuery(QueryBuilders.matchQuery("body", keyword));
+                query.withQuery(QueryBuilders.matchQuery("body", keyword));
+            }
+            query.withHighlightBuilder(highlightBuilder);
+            AggregatedPage<Article> page = getArticles(queryBuilder.build());
+            PageInfo<Object, Object> pageInfo = PageInfo.builder().from(page);
+            return ResponseVo.success(pageInfo);
         }
-        query.withHighlightBuilder(highlightBuilder);
-        AggregatedPage<Article> page = getArticles(queryBuilder.build());
-        PageInfo<Object, Object> pageInfo = PageInfo.builder().from(page);
-        ModelAndView view=new ModelAndView("article");
-        view.addObject("paginationData",pageInfo);
-        view.addObject("page",page);view.addObject("author",author);
-        view.addObject("keyword",keyword);
-        view.addObject("category",category);
-        return view;
-    }
 
     private AggregatedPage<Article> getArticles(SearchQuery searchQuery) {
         return (AggregatedPage<Article>) elasticsearchOperations.queryForPage(searchQuery, Article.class, new SearchResultMapper(){
@@ -196,24 +188,10 @@ public class ArticleController {
         });
     }
 
-    @RequestMapping("/authorDetail")
-    public ModelAndView authorDetail(@RequestParam(defaultValue = "0") int pageNumber,@RequestParam(defaultValue = "*",required = false) String author) {
-        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
-        queryBuilder.withFields("id","title","author","body","dynasty");
-        //page start 0
-        Pageable unpaged = PageRequest.of(pageNumber,15);
-        queryBuilder.withPageable(unpaged);
-        WildcardQueryBuilder matchQuery = QueryBuilders.wildcardQuery("author.keyword", author);
-        queryBuilder.withQuery(matchQuery);
-        AggregatedPage<Article> page = getArticles(queryBuilder.build());
-        PageInfo<Object, Object> pageInfo = PageInfo.builder().from(page);
-        ModelAndView view=new ModelAndView("authorDetail");
+    @GetMapping("/getAuthorList")
+    public ResponseVo getAuthorList() {
         Page<Article> authorAgg = firstLetterGroup();
-        view.addObject("page",page);
-        view.addObject("paginationData",pageInfo);
-        view.addObject("currentAuthor",author);
-        view.addObject("authorAgg",authorAgg);
-        return view;
+        return ResponseVo.success(authorAgg);
     }
 
 
