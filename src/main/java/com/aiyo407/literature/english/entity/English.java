@@ -28,7 +28,7 @@ public class English  extends BaseEntity {
     /**
      * 单词
      */
-    @Field(analyzer = "my_analyzer",searchAnalyzer = "my_analyzer")
+    @Field(analyzer = "my_analyzer")
     private String word;
 
     /**
