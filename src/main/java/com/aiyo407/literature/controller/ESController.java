@@ -3,6 +3,10 @@ package com.aiyo407.literature.controller;
 
 import com.aiyo407.literature.article.entity.Article;
 import com.aiyo407.literature.article.service.IArticleService;
+import com.aiyo407.literature.english.service.IEnglishService;
+import com.aiyo407.literature.es.index.EnglishIndex;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.*;
 import org.springframework.data.elasticsearch.core.query.*;
@@ -24,6 +28,7 @@ import java.util.regex.Pattern;
  * @author luzh
  * @since 2020-02-21
  */
+@Api(tags={"索引操作"})
 @RestController
 @RequestMapping()
 public class ESController {
@@ -32,18 +37,36 @@ public class ESController {
     private IArticleService articleService;
 
     @Autowired
+    private IEnglishService englishService;
+
+    @Autowired
     private ElasticsearchOperations elasticsearchOperations;
+
+    @Autowired
+    private EnglishIndex englishIndex;
 
     /**
      * 创建ES索引
      * @return
      * @throws IOException
      */
+    @ApiOperation(value = "创建索引")
     @GetMapping("index")
     public String index() throws IOException {
-        List<Article> list = articleService.list();
+        englishIndex.index();
+//        List<Article> list = articleService.list();
+//        for (int i = 0; i < list.size(); i++) {
+//            Article article =  list.get(i);
+//            IndexQuery indexQuery = new IndexQueryBuilder()
+//                    .withId(article.getId().toString())
+//                    .withObject(article)
+//                    .build();
+//            String documentId = elasticsearchOperations.index(indexQuery);
+//            System.err.println(documentId);
+//        }
+        List<com.aiyo407.literature.english.entity.English> list = englishService.list();
         for (int i = 0; i < list.size(); i++) {
-            Article article =  list.get(i);
+            com.aiyo407.literature.english.entity.English article =  list.get(i);
             IndexQuery indexQuery = new IndexQueryBuilder()
                     .withId(article.getId().toString())
                     .withObject(article)

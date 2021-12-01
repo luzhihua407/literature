@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "index": {
+      "max_ngram_diff": 4
+    },
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "my_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "my_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 6,
+          "token_chars": [
+            "letter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "word": { "type": "text","analyzer" : "my_analyzer" },
+      "pronunciation": { "type": "text" },
+      "partOfSpeech": { "type": "text" },
+      "chinese": { "type": "text","analyzer" : "ik_max_word" }
+    }
+  }
+}

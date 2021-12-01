@@ -34,3 +34,5 @@ mybatis-plus:
   # 支持统配符 * 或者 ; 分割
   typeEnumsPackage: com.aiyo407.literature.enums
 
+es:
+  host: localhost:9200

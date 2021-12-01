@@ -3,7 +3,6 @@ package com.aiyo407.literature;
 import com.aiyo407.literature.article.entity.Article;
 import com.aiyo407.literature.article.mapper.ArticleMapper;
 import com.aiyo407.literature.article.service.IArticleService;
-import com.aiyo407.literature.english.entity.English;
 import com.aiyo407.literature.english.mapper.EnglishMapper;
 import com.aiyo407.literature.enums.ArticleCategoryEnum;
 import com.aiyo407.literature.enums.DynastyEnum;
@@ -18,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,7 +183,7 @@ class KtuSpringBootCloudDemoApplicationTests {
             String word=split[0];
             String pron=split[1];
             String cn=split[2];
-            English english=new English();
+            com.aiyo407.literature.english.entity.English english=new com.aiyo407.literature.english.entity.English();
             String[] chinese=new String[2];
             if(cn.contains(".")){
             chinese = cn.split("\\.",2);

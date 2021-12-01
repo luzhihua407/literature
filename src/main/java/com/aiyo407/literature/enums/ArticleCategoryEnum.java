@@ -14,7 +14,7 @@ import lombok.Getter;
 @Getter
 public enum ArticleCategoryEnum {
 
-    诗词(1),道德经(2),菜根谭(3),论语(4);
+    诗词(1),道德经(2),菜根谭(3),论语(4),单词(5);
 
 
     @EnumValue

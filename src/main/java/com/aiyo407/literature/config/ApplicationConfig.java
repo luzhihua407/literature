@@ -5,6 +5,7 @@ import com.aiyo407.literature.interceptor.ResponseInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -26,6 +27,10 @@ import java.util.List;
 @Configuration
 public class ApplicationConfig {
 
+	@Bean
+	public RestTemplate rt(){
+		return new RestTemplate();
+	}
 //
 //    @Autowired
 //    private RequestMappingHandlerAdapter handlerAdapter;
