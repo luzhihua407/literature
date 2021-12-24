@@ -1,7 +1,7 @@
 {
   "settings": {
     "index": {
-      "max_ngram_diff": 4
+      "max_ngram_diff": 13
     },
     "analysis": {
       "analyzer": {
@@ -11,9 +11,9 @@
       },
       "tokenizer": {
         "my_tokenizer": {
-          "type": "ngram",
+          "type": "edge_ngram",
           "min_gram": 2,
-          "max_gram": 6,
+          "max_gram": 15,
           "token_chars": [
             "letter"
           ]

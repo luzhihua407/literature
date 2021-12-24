@@ -56,6 +56,13 @@ public class EnglishController {
 	public ResponseVo list(@RequestBody QueryEnglishReqVo queryEnglishReqVo) {
 		String chinese = queryEnglishReqVo.getChinese();
 		String word = queryEnglishReqVo.getWord();
+		if(word.contains("=")){
+			word=word.split("=")[0];
+			if(word.contains(",")){
+				word=word.split(",")[0];
+
+			}
+		}
 		HighlightBuilder highlightBuilder = new HighlightBuilder();
 		highlightBuilder.preTags("<b>");//设置前缀
 		highlightBuilder.postTags("</b>");//设置后缀
@@ -69,7 +76,7 @@ public class EnglishController {
 		sortBuilder.order(SortOrder.ASC);
 		query.withSort(sortBuilder);
 		if(StringUtils.isNotEmpty(word)){
-			query.withQuery(QueryBuilders.matchQuery("word", word));
+			query.withQuery(QueryBuilders.fuzzyQuery("word", word));
 		}
 		if(StringUtils.isNotEmpty(chinese)){
 
@@ -96,6 +103,7 @@ public class EnglishController {
 					Map<String, Object> sourceAsMap = next.getSourceAsMap();
 					Map<String, HighlightField> highlightFields = next.getHighlightFields();
 					english.setChinese((String) sourceAsMap.get("chinese"));
+					english.setWord((String) sourceAsMap.get("word"));
 					english.setPartOfSpeech((String) sourceAsMap.get("partOfSpeech"));
 					english.setPronunciation((String) sourceAsMap.get("pronunciation"));
 					if (sourceAsMap.containsKey("id")) {
