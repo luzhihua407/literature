@@ -124,7 +124,7 @@
         <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>6.2.5</version>
+            <version>6.4.0</version>
         </dependency>
         <!-- swagger2-->
         <dependency>
